@@ -1,0 +1,62 @@
+{{groovy output="false"}}
+import org.xwiki.observation.*
+import org.xwiki.observation.event.*
+import org.xwiki.bridge.event.*
+import org.xwiki.model.reference.*
+import org.xwiki.model.*
+import com.xpn.xwiki.web.*
+import com.xpn.xwiki.*
+import groovy.json.JsonSlurper
+def baseUrl = new URL('http://xwiki.support2.veeam.local/karma')
+def child_pages = doc.getChildren()
+child_pages.each { child_page_id ->
+def xdoc = xwiki.getDocument(child_page_id);
+def id = xdoc.getId()
+def queryString = 'method=get_stat_by_title&platform=xwiki&id='+id+'&user=XWiki.drozhdestvenskiy'
+def connection = baseUrl.openConnection()
+            connection.with {
+              doOutput = true
+              requestMethod = 'POST'
+              outputStream.withWriter { writer ->
+                writer << queryString
+              }
+def response = content.text
+def jsonSlurper = new JsonSlurper()
+def object = jsonSlurper.parseText(response)
+if (object.error == 1){
+xcontext.put('karma_score_'+child_page_id, "ERROR");
+} else {
+xcontext.put('karma_score_'+child_page_id, object.page_karma_score);
+}
+}}
+{{/groovy}}
+
+{{velocity}}
+#set($page_children = $doc.getChildren())
+(% class="table-bordered" %)
+(% class="active" %)|Title|Creator*|Karma|Created|Last Modified
+#foreach($child_page in $page_children)
+   #set ($document = $xwiki.getDocument($child_page))
+   #set ($title = $document.getPlainTitle())
+   #set ($page_creator = $document.getCreator().replace('XWiki.', ''))
+   #set ($page_creator_first_name = $page_creator.substring(0,1).toUpperCase())
+   #set ($page_creator_last_name_first_letter = $page_creator.substring(1, 2).toUpperCase())
+   #set ($page_creator_last_name_minus_first_letter = $page_creator.substring(2))
+   #set ($page_karma_xcontent = "karma_score_"+$child_page)
+   #set ($page_karma = $xcontext.get($page_karma_xcontent))
+   #set ($page_created = $document.getCreationDate())
+   #set ($page_last_edited = $document.getDate())
+    #if ($page_karma == "ERROR")
+        (% class="warning" %)|[[$title>>$child_page]]|$page_creator_first_name. $page_creator_last_name_first_letter$page_creator_last_name_minus_first_letter |$page_karma|$page_created|$page_last_edited
+    #elseif( $page_karma > 4 )
+        (% class="info" %)|[[$title>>$child_page]]|$page_creator_first_name. $page_creator_last_name_first_letter$page_creator_last_name_minus_first_letter |$page_karma|$page_created|$page_last_edited
+    #elseif( $page_karma < 0 )
+        (% class="danger" %)|[[$title>>$child_page]]|$page_creator_first_name. $page_creator_last_name_first_letter$page_creator_last_name_minus_first_letter |$page_karma|$page_created|$page_last_edited
+    #else
+        |[[$title>>$child_page]]|$page_creator_first_name. $page_creator_last_name_first_letter$page_creator_last_name_minus_first_letter |$page_karma|$page_created|$page_last_edited
+    #end
+#end
+
+*you may find that D. Rozhdestvenskiy is shown as a creator of some pages which were created by other users when a page was moved from other location.
+Please check page contributors in this case.
+{{/velocity}}
