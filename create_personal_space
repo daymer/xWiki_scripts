@@ -1,0 +1,66 @@
+{{velocity}}
+#set ($current_user = $xcontext.user.replace('XWiki.', ''))
+#set ($current_user_first_name = $current_user.substring(0,1).toUpperCase())
+#set ($current_user_last_name_first_letter = $current_user.substring(1, 2).toUpperCase())
+#set ($current_user_last_name_minus_first_letter = $current_user.substring(2))
+#set ($current_user_str = "$current_user_first_name$current_user_last_name_first_letter$current_user_last_name_minus_first_letter")
+##$current_user_str
+##set ($page_name_postfix = "_personal_space")
+#set ($page_title_postfix = " personal space")
+#set ($page_name = $current_user_str)
+#set ($page_exists = $xwiki.exists("StagingWiki.Personal Spaces.$page_name"))
+##$page_exists
+#if ($page_exists == "false")
+  ## Show the form (button)
+{{html}}
+It seems that you have no personal space yet.
+    <br><button onclick="myFunction()">Click here!</button>
+    to get a free one.
+
+
+<script>
+function myFunction() {
+    var data = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><page xmlns="http://www.xwiki.org"><title>$page_name$page_title_postfix</title><syntax>xwiki/2.1</syntax><content>This is your new personal space.</content></page>'
+    console.log("$page_name")
+    console.log("$page_name$page_title_postfix")
+$.ajax({
+                    type: 'PUT',
+                    url: 'http://xwiki.support2.veeam.local/rest/wikis/xwiki/spaces/StagingWiki/spaces/Personal%20Spaces/pages/$page_name',
+                    data: data,
+                    dataType: "xml",
+                    contentType: "text/xml",
+                    success: function (data) {
+                        console.log('page created');
+                        var data = '<object xmlns="http://www.xwiki.org"><className>XWiki.XWikiRights</className><property name="allow"><value>0</value></property><property name="groups"><value>XWiki.XWikiAllGroup</value></property><property name="levels"><value>view</value></property></object>'
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://xwiki.support2.veeam.local/rest/wikis/xwiki/spaces/StagingWiki/spaces/Personal%20Spaces/pages/$page_name/objects',
+                            data: data,
+                            dataType: "application/xml",
+                            contentType: "application/xml",
+                            success: function (data) {
+                                console.log('2nd rule added');
+                        }
+                            });
+                        var data = '<object xmlns="http://www.xwiki.org"><className>XWiki.XWikiRights</className><property name="allow"><value>1</value></property><property name="users"><value>XWiki.$current_user</value></property><property name="levels"><value>view,edit,comment,script,delete,admin</value></property></object>'
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://xwiki.support2.veeam.local/rest/wikis/xwiki/spaces/StagingWiki/spaces/Personal%20Spaces/pages/$page_name/objects',
+                            data: data,
+                            dataType: "application/xml",
+                            contentType: "application/xml",
+                            success: function (data) {
+                                console.log('1st rule added');
+                                }
+                            });
+                    }});
+
+             };
+</script>
+{{/html}}
+
+#else
+    exists
+#end
+
+{{/velocity}}

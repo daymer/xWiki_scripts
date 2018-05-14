@@ -1,0 +1,211 @@
+(% class="box infomessage" %)
+(((
+(% class="box successmessage" %)
+(((
+new DocumentUpdatedEvent()
+)))
+)))
+
+{{groovy}}
+import org.xwiki.observation.*
+import org.xwiki.observation.event.*
+import org.xwiki.bridge.event.*
+import org.xwiki.model.reference.*
+import org.xwiki.model.*
+import com.xpn.xwiki.web.*
+import com.xpn.xwiki.*
+
+class LoggingEventListener implements EventListener
+{
+    def logReference = new EntityReference("Event_log", EntityType.DOCUMENT,
+        new EntityReference("xWIKI administration", EntityType.SPACE))
+
+    String getName()
+    {
+        // The unique name of this event listener
+        return "logging_DocumentUpdatedEvent"
+    }
+
+    List<Event> getEvents()
+    {
+        // The list of events this listener listens to
+        return [new DocumentUpdatedEvent()]
+    }
+
+    // Called by the Observation Manager when an event matches the list of events returned
+    // by getEvents()
+    void onEvent(Event event, Object source, Object context)
+    {
+        // Prevent infinite recursion since in this example we log to wiki page which
+        // triggers a document change... :)
+        if (source.fullName != "xWIKI administration.Event_log") {
+            def xwiki = context.getWiki()
+            def document = xwiki.getDocument(logReference, context)
+            def now = new Date()
+            document.setContent("${document.getContent()}\n* ${now.format("yyyyMMdd-HH:mm:ss", TimeZone.getTimeZone('UTC'))} ${source.fullName} has been updated.")
+            xwiki.saveDocument(document, "Logging event", true, context)
+            def docSource_amp_serialized = source.fullName.toString()
+            docSource_amp_serialized = docSource_amp_serialized.replace("&", "%26")
+            def baseUrl = new URL('http://xwiki.support2.veeam.local/karma')
+            def queryString = 'method=reindex_page_by_XWD_FULLNAME&platform=xwiki&XWD_FULLNAME='+docSource_amp_serialized
+            def connection = baseUrl.openConnection()
+            connection.with {
+              doOutput = true
+              requestMethod = 'POST'
+              outputStream.withWriter { writer ->
+                writer << queryString
+              }
+              document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
+              xwiki.saveDocument(document, "Request sent", true, context)
+            }}
+        }
+    }
+
+// Register against the Observation Manager
+def observation = Utils.getComponent(ObservationManager.class)
+observation.removeListener("logging_DocumentUpdatedEvent")
+def listener = new LoggingEventListener()
+observation.addListener(listener)
+{{/groovy}}
+
+
+(% class="box infomessage" %)
+(((
+(% class="box warningmessage" %)
+(((
+new DocumentSaveEvent()
+)))
+)))
+
+{{groovy}}
+import org.xwiki.observation.*
+import org.xwiki.observation.event.*
+import org.xwiki.bridge.event.*
+import org.xwiki.model.reference.*
+import org.xwiki.model.*
+import com.xpn.xwiki.web.*
+import com.xpn.xwiki.*
+
+class LoggingEventListener implements EventListener
+{
+    def logReference = new EntityReference("Event_log", EntityType.DOCUMENT,
+        new EntityReference("xWIKI administration", EntityType.SPACE))
+
+    String getName()
+    {
+        // The unique name of this event listener
+        return "logging_DocumentSaveEvent"
+    }
+
+    List<Event> getEvents()
+    {
+        // The list of events this listener listens to
+        return [new DocumentSaveEvent()]
+    }
+
+    // Called by the Observation Manager when an event matches the list of events returned
+    // by getEvents()
+    void onEvent(Event event, Object source, Object context)
+    {
+        // Prevent infinite recursion since in this example we log to wiki page which
+        // triggers a document change... :)
+        if (source.fullName != "xWIKI administration.Event_log") {
+            def xwiki = context.getWiki()
+            def document = xwiki.getDocument(logReference, context)
+            def now = new Date()
+            document.setContent("${document.getContent()}\n* ${now.format("yyyyMMdd-HH:mm:ss", TimeZone.getTimeZone('UTC'))} ${source.fullName} has been created!")
+            xwiki.saveDocument(document, "Logging event", true, context)
+            def docSource_amp_serialized = source.fullName.toString()
+            docSource_amp_serialized = docSource_amp_serialized.replace("&", "%26")
+            def baseUrl = new URL('http://xwiki.support2.veeam.local/karma')
+            def queryString = 'method=reindex_page_by_XWD_FULLNAME&platform=xwiki&XWD_FULLNAME='+docSource_amp_serialized
+            def connection = baseUrl.openConnection()
+            connection.with {
+              doOutput = true
+              requestMethod = 'POST'
+              outputStream.withWriter { writer ->
+                writer << queryString
+              }
+              document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
+              xwiki.saveDocument(document, "Request sent", true, context)
+            }}
+        }
+    }
+
+// Register against the Observation Manager
+def observation = Utils.getComponent(ObservationManager.class)
+observation.removeListener("logging_DocumentSaveEvent")
+def listener = new LoggingEventListener()
+observation.addListener(listener)
+{{/groovy}}
+
+
+(% class="box infomessage" %)
+(((
+(% class="box errormessage" %)
+(((
+new DocumentDeleteEvent()
+)))
+)))
+
+{{groovy}}
+import org.xwiki.observation.*
+import org.xwiki.observation.event.*
+import org.xwiki.bridge.event.*
+import org.xwiki.model.reference.*
+import org.xwiki.model.*
+import com.xpn.xwiki.web.*
+import com.xpn.xwiki.*
+
+class LoggingEventListener implements EventListener
+{
+    def logReference = new EntityReference("Event_log", EntityType.DOCUMENT,
+        new EntityReference("xWIKI administration", EntityType.SPACE))
+
+    String getName()
+    {
+        // The unique name of this event listener
+        return "logging_DocumentDeleteEvent"
+    }
+
+    List<Event> getEvents()
+    {
+        // The list of events this listener listens to
+        return [new DocumentDeleteEvent()]
+    }
+
+    // Called by the Observation Manager when an event matches the list of events returned
+    // by getEvents()
+    void onEvent(Event event, Object source, Object context)
+    {
+        // Prevent infinite recursion since in this example we log to wiki page which
+        // triggers a document change... :)
+        if (source.fullName != "xWIKI administration.Event_log") {
+            def xwiki = context.getWiki()
+            def document = xwiki.getDocument(logReference, context)
+            def now = new Date()
+            document.setContent("${document.getContent()}\n* ${now.format("yyyyMMdd-HH:mm:ss", TimeZone.getTimeZone('UTC'))} ${source.fullName} has been deleted!")
+            xwiki.saveDocument(document, "Logging event", true, context)
+            def docSource_amp_serialized = source.fullName.toString()
+            docSource_amp_serialized = docSource_amp_serialized.replace("&", "%26")
+            def baseUrl = new URL('http://xwiki.support2.veeam.local/karma')
+            def queryString = 'method=delete_page_by_XWD_FULLNAME&platform=xwiki&XWD_FULLNAME='+docSource_amp_serialized
+            def connection = baseUrl.openConnection()
+            connection.with {
+              doOutput = true
+              requestMethod = 'POST'
+              outputStream.withWriter { writer ->
+                writer << queryString
+              }
+              document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
+              xwiki.saveDocument(document, "Request sent", true, context)
+            }}
+        }
+    }
+
+// Register against the Observation Manager
+def observation = Utils.getComponent(ObservationManager.class)
+observation.removeListener("logging_DocumentDeleteEvent")
+def listener = new LoggingEventListener()
+observation.addListener(listener)
+{{/groovy}}
