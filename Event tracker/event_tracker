@@ -55,8 +55,7 @@ class LoggingEventListener implements EventListener
               outputStream.withWriter { writer ->
                 writer << queryString
               }
-              //document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
-              document.setContent("classified")
+              document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
               xwiki.saveDocument(document, "Request sent", true, context)
             }}
         }
@@ -127,8 +126,7 @@ class LoggingEventListener implements EventListener
               outputStream.withWriter { writer ->
                 writer << queryString
               }
-              //document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
-              document.setContent("classified")
+              document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
               xwiki.saveDocument(document, "Request sent", true, context)
             }}
         }
@@ -199,8 +197,7 @@ class LoggingEventListener implements EventListener
               outputStream.withWriter { writer ->
                 writer << queryString
               }
-              //document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
-              document.setContent("classified")
+              document.setContent("${document.getContent()}\n Karma was informed, info about **${docSource_amp_serialized}** has been delivered, result: \n${content.text}")
               xwiki.saveDocument(document, "Request sent", true, context)
             }}
         }

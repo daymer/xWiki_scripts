@@ -1,0 +1,135 @@
+{{velocity}}
+#set ($current_user = $xcontext.user.replace('XWiki.', ''))
+#set ($current_user_first_name = $current_user.substring(0,1).toUpperCase())
+#set ($current_user_last_name_first_letter = $current_user.substring(1, 2).toUpperCase())
+#set ($current_user_last_name_minus_first_letter = $current_user.substring(2))
+#set ($current_user_str = "$current_user_first_name$current_user_last_name_first_letter$current_user_last_name_minus_first_letter")
+##$current_user_str
+##set ($page_name_postfix = "_personal_space")
+#set ($page_title_postfix = " personal space")
+#set ($page_name = $current_user_str)
+#set ($page_exists = $xwiki.getSpaces().contains("StagingWiki.Personal Spaces.$page_name"))
+##$page_exists
+#if ($page_exists == "false")
+  ## Show the form (button)
+{{html}}
+It seems that you have no personal space yet.
+    <br><button onclick="CreatePersonalPageSequence()">Click here!</button>
+    to get a free one after 2-3 sec of waiting. This page will be reloaded automatically.
+    <div id="servermsg"></div>
+
+<script>
+function CreatePersonalPageSequence() {
+
+
+
+function CreatePage() {
+    writeMessage("Creating a personal page $page_name");
+    var data = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><page xmlns="http://www.xwiki.org"><title>$page_name$page_title_postfix</title><syntax>xwiki/2.1</syntax><content>This is your new personal space.</content></page>';
+    return $.ajax({
+        type: 'PUT',
+        url: 'http://xwiki.support2.veeam.local/rest/wikis/xwiki/spaces/StagingWiki/spaces/Personal%20Spaces/spaces/$page_name/pages/WebHome',
+        data: data,
+        dataType: "xml",
+        contentType: "text/xml",
+        success: function (data) {
+                        console.log('page created');
+                        servermsg.innerHTML = servermsg.innerHTML  + "Page created"},
+        error: function (data) {
+                        servermsg.innerHTML = servermsg.innerHTML  + "<br>Oh no, CreatePage has failed";
+                        console.log('Oh no, CreatePage has failed');}
+    });
+}
+
+
+function SetUserAsAdmin(resultFromAllowXWikiAllGroupOnlyView) {
+    writeMessage("In Function SetUserAsAdmin. Result From AllowXWikiAllGroupOnlyView = " + resultFromAllowXWikiAllGroupOnlyView.data);
+    var data = '<object xmlns="http://www.xwiki.org"><className>XWiki.XWikiRights</className><property name="allow"><value>1</value></property><property name="users"><value>XWiki.$current_user</value></property><property name="levels"><value>view,edit,comment,script,delete,admin</value></property></object>';
+    return $.ajax({
+        type: 'POST',
+        url: 'http://xwiki.support2.veeam.local/rest/wikis/xwiki/spaces/StagingWiki/spaces/Personal%20Spaces/spaces/$page_name/pages/WebHome/objects',
+        data: data,
+        dataType: "text",
+        contentType: "application/xml",
+        success: function (data) {
+                        console.log('User $current_user is set as admin');
+                        servermsg.innerHTML = servermsg.innerHTML  + "<br>User $current_user is set as admin";},
+        error: function (data) {
+                        servermsg.innerHTML = servermsg.innerHTML  + "<br>Oh no, SetUserAsAdmin has failed";
+                        console.log('Oh no, SetUserAsAdmin has failed');}
+    });
+}
+
+
+function AllowXWikiAllGroupOnlyView(resultFromCreatePage) {
+    writeMessage("In Function AllowXWikiAllGroupOnlyView. Result From CreatePage =  " + resultFromCreatePage.data);
+    var data = '<object xmlns="http://www.xwiki.org"><className>XWiki.XWikiRights</className><property name="allow"><value>0</value></property><property name="groups"><value>XWiki.XWikiAllGroup</value></property><property name="levels"><value>view</value></property></object>'
+    return $.ajax({
+        type: 'POST',
+        url: 'http://xwiki.support2.veeam.local/rest/wikis/xwiki/spaces/StagingWiki/spaces/Personal%20Spaces/spaces/$page_name/pages/WebHome/objects',
+        data: data,
+        dataType: "text",
+        contentType: "application/xml",
+        success: function (data) {
+                        servermsg.innerHTML = servermsg.innerHTML  + "<br>AllowXWikiAllGroupOnlyView is set";
+                        console.log('AllowXWikiAllGroupOnlyView is set');},
+        error: function (data) {
+                        servermsg.innerHTML = servermsg.innerHTML  + "<br>Oh no, AllowXWikiAllGroupOnlyView has failed";
+                        console.log('Oh no, AllowXWikiAllGroupOnlyView has failed');}
+    });
+}
+
+function Final(resultFromAllowXWikiAllGroupOnlyView) {
+    writeMessage("In Function Final. Result From AllowXWikiAllGroupOnlyView = " + resultFromAllowXWikiAllGroupOnlyView.data);
+    location.reload();
+}
+
+CreatePage().then(SetUserAsAdmin).then(AllowXWikiAllGroupOnlyView).then(Final);
+
+function writeMessage(msg) {
+    $("#para").append(msg + "<br>");
+}
+
+
+             };
+</script>
+{{/html}}
+
+#else
+
+(% class="box infomessage" %)
+(((
+**Don't use this space for page drafts!**
+Entire[[ Staging wiki>>doc:StagingWiki.WebHome]] is a home for your temp articles. Allow others to help you preparing [[new articles>>doc:StagingWiki.New_articles.WebHome]].
+)))
+
+    #set($page_children = $doc.getChildren())
+    #set($topSpace = 'StagingWiki.Personal Spaces.')
+    #set($page_children2 = $xwiki.getSpaces())
+##$page_children2
+    (% class="table-bordered" %)
+    ##(% class="active" %)|Title|Created|Last Modified
+    (% class="active" %)|Title
+    #foreach($child_page in $page_children2)
+       #if ($child_page.contains($topSpace))
+             #set($SpaceWithoutDots = $child_page.replace(".", ""))
+                    ## test if there is only two. (dots) inside
+                       #if ($child_page.length() - $SpaceWithoutDots.length()==2)
+                           #set ($home = '.WebHome')
+                           #set ($child_page_with_home = "$child_page$home")
+                           #set ($document = $xwiki.getDocument($child_page_with_home))
+                           #set ($title = $document.getPlainTitle())
+                           #set ($page_created = $document.getCreationDate())
+                           #set ($page_last_edited = $document.getDate())
+                           #if ($title)
+                                ##|[[$title>>$child_page]]|$page_created|$page_last_edited
+                                |[[$title>>$child_page]]
+                           #end
+                       #end
+       #end
+    #end
+
+
+#end
+
+{{/velocity}}
