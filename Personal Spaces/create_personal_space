@@ -16,6 +16,7 @@
 It seems that you have no personal space yet.
     <br><button onclick="CreatePersonalPageSequence()">Click here!</button>
     to get a free one after 2-3 sec of waiting. This page will be reloaded automatically.
+    Note: you can change a page title at any time after its creation.
     <div id="servermsg"></div>
 
 <script>
@@ -101,6 +102,7 @@ function writeMessage(msg) {
 (((
 **Don't use this space for page drafts!**
 Entire[[ Staging wiki>>doc:StagingWiki.WebHome]] is a home for your temp articles. Allow others to help you preparing [[new articles>>doc:StagingWiki.New_articles.WebHome]].
+Note: you can change a page title at any time after its creation.
 )))
 
     #set($page_children = $doc.getChildren())

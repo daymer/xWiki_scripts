@@ -38,7 +38,7 @@ class LoggingEventListener implements EventListener
     {
         // Prevent infinite recursion since in this example we log to wiki page which
         // triggers a document change... :)
-        if (source.fullName != "xWIKI administration.Event_log") {
+        if (source.fullName != "xWIKI administration.Event_log" && source.fullName != "xWIKI administration.Event tracker" && !source.fullName.startsWith("StagingWiki.Personal Spaces")) {
             def xwiki = context.getWiki()
             def document = xwiki.getDocument(logReference, context)
             def now = new Date()
@@ -109,7 +109,7 @@ class LoggingEventListener implements EventListener
     {
         // Prevent infinite recursion since in this example we log to wiki page which
         // triggers a document change... :)
-        if (source.fullName != "xWIKI administration.Event_log") {
+        if (source.fullName != "xWIKI administration.Event_log" && source.fullName != "xWIKI administration.Event tracker" && !source.fullName.startsWith("StagingWiki.Personal Spaces")) {
             def xwiki = context.getWiki()
             def document = xwiki.getDocument(logReference, context)
             def now = new Date()
@@ -180,7 +180,7 @@ class LoggingEventListener implements EventListener
     {
         // Prevent infinite recursion since in this example we log to wiki page which
         // triggers a document change... :)
-        if (source.fullName != "xWIKI administration.Event_log") {
+        if (source.fullName != "xWIKI administration.Event_log" && source.fullName != "xWIKI administration.Event tracker" && !source.fullName.startsWith("StagingWiki.Personal Spaces")) {
             def xwiki = context.getWiki()
             def document = xwiki.getDocument(logReference, context)
             def now = new Date()
