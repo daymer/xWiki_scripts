@@ -108,8 +108,8 @@ Entire[[ Staging wiki>>doc:StagingWiki.WebHome]] is a home for your temp article
     #set($page_children2 = $xwiki.getSpaces())
 ##$page_children2
     (% class="table-bordered" %)
-    ##(% class="active" %)|Title|Created|Last Modified
-    (% class="active" %)|Title
+    (% class="active" %)|Title|Created|Last Modified
+    ##(% class="active" %)|Title
     #foreach($child_page in $page_children2)
        #if ($child_page.contains($topSpace))
              #set($SpaceWithoutDots = $child_page.replace(".", ""))
@@ -122,8 +122,8 @@ Entire[[ Staging wiki>>doc:StagingWiki.WebHome]] is a home for your temp article
                            #set ($page_created = $document.getCreationDate())
                            #set ($page_last_edited = $document.getDate())
                            #if ($title)
-                                ##|[[$title>>$child_page]]|$page_created|$page_last_edited
-                                |[[$title>>$child_page]]
+                                |[[$title>>$child_page]]|$page_created|$page_last_edited
+                                ##|[[$title>>$child_page]]
                            #end
                        #end
        #end
